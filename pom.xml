@@ -7,6 +7,13 @@
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>WebJar Application</name>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <comments>Please see the LICENSE file in the project root</comments>
+    </license>
+  </licenses>
+
 
   <dependencies>
 
