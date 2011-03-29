@@ -38,6 +38,22 @@ Then point your browser to http://localhost:8888/.
 
 You can also run `mvn eclipse:eclipse`, import the project into Eclipse, and debug the `Main` class.
 
+I've included a wrapper script under `src/main/scripts` for running a webjar as a Unix daemon.
 
-John Krasnay
+## Spring Usage
+
+If you're using the Spring framework in your webjar, you may get errors
+related to missing XML namespaces. The solution is to add the following
+lines to your POM in the `<transformers>` section of the Shade
+plug-in's configuration:
+
+    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+      <resource>META-INF/spring.handlers</resource>
+    </transformer>
+    <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+      <resource>META-INF/spring.schemas</resource>
+    </transformer>
+
+---
+John Krasnay  
 john@krasnay.ca
