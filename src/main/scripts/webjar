@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Wrapper script for dealing with a webjar as a Unix daemon process.
+#
+# Please see the README for more information.
+#
+
+APPNAME=webjar
+APPVER=1.0-SNAPSHOT
+OPTIONS=-Xmx100m
+USER=myuser
+
+APPPATH=/var/lib/$APPNAME/$APPNAME-$APPVER.jar
+PIDFILE=/var/run/$APPNAME.pid
+STDOUT=/var/log/$APPNAME-stdout.log
+
+if [ $UID -ne 0 ]; then
+    echo "Must run as root"
+    exit 1
+fi
+
+if [ -z $1 ]; then
+    echo "Usage: $0 {start|stop|threaddump}"
+    exit 2
+fi
+
+if [ -z $JAVA_HOME ]; then
+    JAVA=/usr/bin/java
+else
+    JAVA="$JAVA_HOME/bin/java"
+fi
+
+is_running() {
+    test -f $PIDFILE && ps -fp `cat $PIDFILE` > /dev/null
+}
+
+case "$1" in
+start)
+    if is_running; then
+        echo "$APPNAME appears to be running with pid `cat $PIDFILE`"
+        exit 3
+    else
+        nohup sudo -u $USER $JAVA $OPTIONS -jar $APPPATH >> $STDOUT 2>&1 &
+        echo $! > $PIDFILE
+    fi
+    ;;
+
+stop)
+    if is_running; then
+        kill `cat $PIDFILE`
+    else
+        echo "$APPNAME is not running"
+    fi
+    ;;
+
+threaddump)
+    if is_running; then
+        kill -3 `cat $PIDFILE`
+        echo "Threads dumped to $STDOUT"
+    else
+        echo "$APPNAME is not running"
+    fi
+    ;;
+
+*)
+    echo "Usage: $0 {start|stop|threaddump}"
+    exit 2
+esac
+
